@@ -3,11 +3,13 @@ from routereq import *
 from time import *
 from threading import Thread
 
+
 def total_firsttest():
     while True:
         res = get_firsttest()
         parse_firsttest(res)
         sleep(5)
+
 
 def total_upassemly():
     while True:
@@ -22,11 +24,13 @@ def total_screw():
         parse_screw(res)
         sleep(5)
 
+
 def total_repeattest():
     while True: 
         res = get_repeattest()
         parse_repeattest(res)
         sleep(5)
+
 
 def total_ccd():
     while True:
@@ -34,11 +38,13 @@ def total_ccd():
         parse_ccd(res)
         sleep(5)
 
+
 def total_remark():
     while True:
         res = get_remark()
         parse_remark(res)
         sleep(5)
+
 
 def total_check():
     while True:
