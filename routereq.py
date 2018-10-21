@@ -5,7 +5,7 @@ from parse_response import parse_check, parse_upassemly, parse_screw
 from time import sleep
 
 clientstring = socket.gethostbyname(socket.gethostname())
-_, _, _,client = clientstring.split('.') 
+_, _, _,client = clientstring.split('.')
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='error.log', level=logging.INFO)
@@ -14,8 +14,10 @@ logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='er
 
 def get_firsttest():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:   
+    try:
+        sock.settimeout(3)
         sock.connect(('192.168.250.11',9600))
+        sock.settimeout(None)
         sock.send(finsconn(int(client)))
         resp = sock.recv(1024)
         req = requestframe(11, int(client), 8000,216)
@@ -30,8 +32,10 @@ def get_firsttest():
 
 def get_upassemly():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:   
+    try:
+        sock.settimeout(3)
         sock.connect(('192.168.250.10',9600))
+        sock.settimeout(None)
         sock.send(finsconn(int(client)))
         fresp = sock.recv(1024)
         req = requestframe(10, int(client), 8000, 182)
@@ -46,8 +50,10 @@ def get_upassemly():
 
 def get_screw():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:   
+    try:
+        sock.settimeout(3)
         sock.connect(('192.168.250.12',9600))
+        sock.settimeout(None)
         sock.send(finsconn(int(client)))
         fresp = sock.recv(1024)
         req = requestframe(12, int(client), 8000,60)
@@ -57,16 +63,18 @@ def get_screw():
         logger.exception("---------------Fatal error in get_screw------------")
     finally:
         sock.close()
-    return resp 
+    return resp
 
 
 def get_repeattest():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:   
+    try:
+        sock.settimeout(3)
         sock.connect(('192.168.250.13',9600))
+        sock.settimeout(None)
         sock.send(finsconn(int(client)))
         resp = sock.recv(1024)
-        
+
         req = requestframe(13, int(client), 8000,216)
         sock.send(req)
         resp = sock.recv(8192)
@@ -79,11 +87,13 @@ def get_repeattest():
 
 def get_ccd():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:   
+    try:
+        sock.settimeout(3)
         sock.connect(('192.168.250.14',9600))
+        sock.settimeout(None)
         sock.send(finsconn(int(client)))
         resp = sock.recv(1024)
-        
+
         req = requestframe(14, int(client), 8000,170)
         sock.send(req)
         resp = sock.recv(8192)
@@ -96,11 +106,13 @@ def get_ccd():
 
 def get_remark():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:   
+    try:
+        sock.settimeout(3)
         sock.connect(('192.168.250.15', 9600))
+        sock.settimeout(None)
         sock.send(finsconn(int(client)))
         resp = sock.recv(1024)
-        
+
         req = requestframe(15, int(client), 8000, 72)
         sock.send(req)
         resp = sock.recv(8192)
@@ -113,8 +125,10 @@ def get_remark():
 
 def get_check():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:   
+    try:
+        sock.settimeout(3)
         sock.connect(('192.168.250.16',9600))
+        sock.settimeout(None)
         sock.send(finsconn(int(client)))
         fresp = sock.recv(1024)
         req = requestframe(16, int(client), 8000,108)
@@ -132,12 +146,12 @@ def get_check():
 '''
 def get_upassemly():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:   
+    try:
         sock.connect(('192.168.250.10',9600))
         sock.send(finsconn(int(client)))
         fresp = sock.recv(1024)
         req = requestframe(10, int(client), 8000, 182)
-        while True:            
+        while True:
             sock.send(req)
             resp = sock.recv(8192)
             parse_upassemly(resp)
@@ -150,7 +164,7 @@ def get_upassemly():
 
 def get_screw():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:   
+    try:
         sock.connect(('192.168.250.12',9600))
         sock.send(finsconn(int(client)))
         fresp = sock.recv(1024)

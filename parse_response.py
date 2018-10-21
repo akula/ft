@@ -42,7 +42,7 @@ def parse_res(response):
 
 
 def parse_upassemly(response):
-    ''' 
+    '''
     The 10 PLC parse message
     '''
     global g_pre_assembly_msg
@@ -73,7 +73,7 @@ def parse_upassemly(response):
 
     comm_code, back_code, light_code, _ = str(scan_msg).lstrip('b').replace("'",'').replace('@','').split(',')
     product_id = str(read_id).lstrip('b').replace("'",'').replace('@','')
-    
+
 
     '''msg for repeat check '''
     pre_assembly_msg = data[0:14]
@@ -87,9 +87,9 @@ def parse_upassemly(response):
 
     ''' insert into database'''
     if pre_assembly_msg != g_pre_assembly_msg:
-    
+
         g_pre_assembly_msg = pre_assembly_msg
-        logger.info('get pre_assembly')        
+        logger.info('get pre_assembly')
         try:
             pre_start = datetime.datetime.strptime(str(pre_starttime), "%y%m%d%H%M%S")
             pre_end = datetime.datetime.strptime(str(pre_endtime), "%y%m%d%H%M%S")
@@ -98,7 +98,7 @@ def parse_upassemly(response):
             pre_end = datetime.datetime.now()
             logger.error('pre_starttime: ' + str(pre_starttime))
             logger.error('pre_endtime: ' + str(pre_endtime))
-            
+
         try:
             db=MySQLdb.connect(host="127.0.0.1", user="autoline", passwd="1qa2ws",db="autoline")
             c = db.cursor()
@@ -111,7 +111,7 @@ def parse_upassemly(response):
             db.close()
     else:
         logger.info('drop assembly')
-        
+
     if scan_code_msg != g_scan_code_msg:
         g_scan_code_msg = scan_code_msg
         logger.info('get scan_code_msg')
@@ -129,7 +129,7 @@ def parse_upassemly(response):
             db.commit()
         except Exception as e:
             logger.exception(e)
-        finally:            
+        finally:
             db.close()
     else:
         logger.info('drop scan_code_msg')
@@ -167,13 +167,13 @@ def parse_upassemly(response):
             logger.error('read_endtime: ' + str(read_endtime))
             read_start = datetime.datetime.now()
             read_end = datetime.datetime.now()
-        try:    
+        try:
             db=MySQLdb.connect(host="127.0.0.1", user="autoline", passwd="1qa2ws",db="autoline")
             c = db.cursor()
             c.execute("""insert into readid (product_id, qty, ng, code, starttime, endtime ) values (%s, %s, %s , %s , %s, %s) """, ( product_id, read_qty, read_ng, read_code, read_start, read_end ))
             db.commit()
         except Exception as e:
-            logger.exception(e)   
+            logger.exception(e)
         finally:
             db.close()
     else:
@@ -205,13 +205,13 @@ def parse_firsttest(response):
             logger.error('first_end: ' + str(endtime))
             first_start = datetime.datetime.now()
             first_end = datetime.datatime.now()
-                         
+
         codes = codemsg.replace('@','').split(',')
 
-        try:           
+        try:
             db=MySQLdb.connect(host="127.0.0.1", user="autoline", passwd="1qa2ws",db="autoline")
             c = db.cursor()
-        
+
             for s in codes:
                 if ( not s.startswith('---')):
                     product_id, test_code = s.split('.')
@@ -224,7 +224,7 @@ def parse_firsttest(response):
     else:
         logger.info('drop firsttest_msg')
 
-               
+
 
 def parse_screw(response):
     '''
@@ -232,7 +232,7 @@ def parse_screw(response):
     global g_screw_msg
     global g_firstmat_msg
     global logger
-    res = response 
+    res = response
     data = res[30:]
     time_ts = data[0:12].hex()
     screw_qty = int(data[12:14].hex(),16)
@@ -253,7 +253,7 @@ def parse_screw(response):
         logger.info('get screw_msg')
         screw_start = datetime.datetime.strptime(str(screw_starttime), "%y%m%d%H%M%S")
         screw_end = datetime.datetime.strptime(str(screw_endtime), "%y%m%d%H%M%S")
-        
+
         try:
             db=MySQLdb.connect(host="127.0.0.1", user="autoline", passwd="1qa2ws",db="autoline")
             c = db.cursor()
@@ -261,7 +261,7 @@ def parse_screw(response):
             db.commit()
         except Exception as e:
             print(e)
-        finally:    
+        finally:
             db.close()
     else:
         logger.info('drop screw_msg')
@@ -297,14 +297,14 @@ def parse_screw(response):
 def parse_repeattest(response):
     global g_repeattest_msg
     global logger
-    res = response 
+    res = response
     starttime = parse_stime(res[30:36].hex())
     repeat_qty = int(res[36:38].hex(), 16)
     repeat_ng  = int(res[38:40].hex(), 16)
     endtime = parse_stime(res[40:46].hex())
     codemsg = res[46:246]
     codes = str(codemsg).lstrip('b').lstrip("'").rstrip("'").replace('@','').split(',')
-    
+
 
     repeattest_msg = res[30:]
 
@@ -330,23 +330,23 @@ def parse_repeattest(response):
                     db.commit()
         except Exception as e:
             print(e)
-        finally:    
+        finally:
             db.close()
     else:
         logger.info('drop repeatest_msg')
-            
 
 
-    
+
+
 
 def parse_ccd(response):
     '''ccd '''
 
     global g_ccd_msg
-    global g_sample_msg 
+    global g_sample_msg
     global g_secmat_msg
     global logger
-    res = response 
+    res = response
     data = res[30:]
     ccd_ts = data[0:12].hex()
     ccd_qty = int(data[12:14].hex(),16)
@@ -369,11 +369,11 @@ def parse_ccd(response):
     secmat_starttime, secmat_endtime = parse_time(secmat_ts)
     sample_id, test_code = sample_code.replace('@','').replace(',','').split('.')
     test_code = ''.join(filter(lambda x: x in printable, test_code))
-    
+
     ccd_msg = data[0:48]
     sample_msg = data[48:124]
     secmat_msg = data[124:]
-    
+
     if debug_flg == 1:
         print(ccd_starttime)
         print(ccd_endtime)
@@ -391,13 +391,13 @@ def parse_ccd(response):
         print(sec_qty)
         print(sec_ng)
         print(sec_id)
-    
+
     if ccd_msg != g_ccd_msg:
         g_ccd_msg = ccd_msg
         logger.info('get ccd_msg')
         ccd_start = datetime.datetime.strptime(str(ccd_starttime), "%y%m%d%H%M%S")
         ccd_end =  datetime.datetime.strptime(str(ccd_endtime), "%y%m%d%H%M%S")
-        
+
         try:
             db=MySQLdb.connect(host="127.0.0.1", user="autoline", passwd="1qa2ws",db="autoline")
             c = db.cursor()
@@ -405,7 +405,7 @@ def parse_ccd(response):
             db.commit()
         except Exception as e:
             print(e)
-        finally:    
+        finally:
             db.close()
     else:
         logger.info('drop ccd_msg')
@@ -433,7 +433,7 @@ def parse_ccd(response):
         logger.info('get secmat_msg')
         secmat_start = datetime.datetime.strptime(str(secmat_starttime), "%y%m%d%H%M%S")
         secmat_end = datetime.datetime.strptime(str(secmat_endtime), "%y%m%d%H%M%S")
-        
+
         try:
             db=MySQLdb.connect(host="127.0.0.1", user="autoline", passwd="1qa2ws",db="autoline")
             c = db.cursor()
@@ -474,7 +474,7 @@ def parse_remark(response):
         logger.info('get remark_msg')
         start = datetime.datetime.strptime(str(starttime), "%y%m%d%H%M%S")
         end = datetime.datetime.strptime(str(endtime), "%y%m%d%H%M%S")
-    
+
         try:
             db=MySQLdb.connect(host="127.0.0.1", user="autoline", passwd="1qa2ws",db="autoline")
             c = db.cursor()
@@ -489,7 +489,7 @@ def parse_remark(response):
 
 def parse_check(response):
     '''
-    check 
+    check
     '''
     global g_check_msg
     global g_cover_msg
@@ -544,7 +544,7 @@ def parse_check(response):
             db.close()
     else:
         logger.info('drop check_msg')
-    
+
     if cover_msg != g_cover_msg:
         g_cover_msg = cover_msg
         logger.info('get cover_msg')
@@ -560,16 +560,8 @@ def parse_check(response):
             c.execute("""insert into cover (product_id,  qty, starttime, endtime ) values (%s, %s,  %s,%s) """, ( cover_id,   cover_qty,  cover_start, cover_end ))
             db.commit()
         except Exception as e:
-            print(e)    
+            print(e)
         finally:
             db.close()
     else:
         logger.info('drop cover_msg')
-
-
-    
-
-
-
-
-    
